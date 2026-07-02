@@ -27,7 +27,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc && cp -r src/agents src/generated-config src/skills src/templates dist/",
+    "build": "rm -rf dist && tsc && cp -R src/agents src/generated-config src/skills src/templates dist/",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "bun run build",
     "dev": "tsc --watch"
