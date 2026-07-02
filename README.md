@@ -20,26 +20,84 @@ Every generated project keeps a living workspace inside it, so you can keep iter
 
 ## Installation
 
-### With npm
+> **Note**: `vforge` is not yet published to npm. Install from source or from a tarball built locally.
+
+### Option 1: Clone and build (recommended for now)
 
 ```bash
-npm install -g vforge
-vforge install
+git clone https://github.com/MrDyslexia/vforge.git
+cd vforge
+bun install
+bun run build
 ```
 
-### With bun
+Then register the plugin manually in your OpenCode global config.
+
+**Linux/macOS:** edit `~/.config/opencode/opencode.json`
+
+**Windows:** edit `%APPDATA%\opencode\opencode.json`
+
+Add the absolute path to `dist/plugin.js`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "C:/Users/Low/.config/opencode/vforge/dist/plugin.js"
+  ]
+}
+```
+
+Or use the CLI if you want to copy the built files to a stable location first:
 
 ```bash
-bun install -g vforge
-vforge install
+# Copy dist/ to a stable location
+mkdir -p ~/.config/opencode/vforge
+cp -R dist ~/.config/opencode/vforge/
+
+# Register plugin and copy skills
+bunx vforge install
 ```
 
-`vforge install` registers the plugin in your OpenCode global config (`~/.config/opencode/opencode.json`). **Restart OpenCode** after installing.
+**Restart OpenCode** after installing.
+
+### Option 2: Install from a local tarball
+
+Build the tarball in the cloned repo:
+
+```bash
+cd vforge
+bun run build
+npm pack
+```
+
+Then, in your project directory:
+
+```bash
+bun init -y
+bun add -D ./vforge-0.1.0.tgz
+bunx vforge install
+```
+
+**Restart OpenCode**.
+
+### Option 3: Global install from source
+
+```bash
+cd vforge
+bun install
+bun run build
+bun link
+
+# In any project
+bun link vforge
+bunx vforge install
+```
 
 ### Verify
 
 ```bash
-vforge doctor
+bunx vforge doctor
 ```
 
 ---
@@ -59,22 +117,14 @@ The plugin delegates to four agents:
 3. `vforge-builder` — copies the Next.js template and generates the app files.
 4. `vforge-reviewer-fixer` — validates the build and fixes issues.
 
-The generated project is placed in `~/vforge-apps/<slug>/` by default.
-
-### From the terminal
-
-```bash
-vforge next "landing page premium para analytics SaaS"
-```
-
-This command is planned for a future release. The primary interface today is the OpenCode slash command.
+The generated project is placed in `./<slug>/` (relative to the directory where you run OpenCode) by default.
 
 ---
 
 ## Generated project structure
 
 ```text
-~/vforge-apps/my-app/
+my-app/
 ├── app/                    # Next.js App Router
 ├── components/             # Components
 ├── lib/                    # Utilities
@@ -82,12 +132,8 @@ This command is planned for a future release. The primary interface today is the
 ├── Containerfile           # Podman/Docker image
 ├── PROJECT.md              # Prompt, spec, visual direction, status
 ├── opencode.json           # Local workspace config
-└── .opencode/
-    ├── commands/
-    │   ├── iterate.md      # /iterate <prompt>
-    │   ├── page.md         # /page <name>
-    │   └── component.md    # /component <name>
-    └── agent/              # Project-local agents
+└── agents/
+    └── vforge-builder.md   # Local builder agent prompt
 ```
 
 ---
@@ -136,15 +182,37 @@ vforge/
 ## Development
 
 ```bash
-git clone https://github.com/example/vforge.git
+git clone https://github.com/MrDyslexia/vforge.git
 cd vforge
 bun install
 bun run build
-bun link                    # or npm link
-vforge install
 ```
 
-Restart OpenCode after `vforge install`.
+Run the install test in a clean Linux container (requires Podman):
+
+```bash
+bash sandbox/test-bun-install.sh
+```
+
+---
+
+## Troubleshooting
+
+### `Cannot find module '../dist/cli.js'`
+
+You installed from GitHub without building first. `vforge` needs `dist/` to exist. Run `bun run build` and reinstall.
+
+### `ENOENT: no such file or directory, open '...opencode.json.vforge-bak-...'`
+
+Fixed in recent versions. Update to the latest commit and run `bunx vforge install` again.
+
+### `/vforge next` does not appear in OpenCode
+
+Make sure the plugin path is registered correctly and restart OpenCode. On Windows use the absolute path with forward slashes, e.g. `C:/Users/Low/.config/opencode/vforge/dist/plugin.js`.
+
+### Template copy fails with `C:\C:\...`
+
+Fixed in recent versions. Update to the latest commit and rebuild.
 
 ---
 
@@ -152,6 +220,8 @@ Restart OpenCode after `vforge install`.
 
 - [x] Next.js template
 - [x] Living workspace in generated projects
+- [x] Windows compatibility
+- [ ] Publish to npm
 - [ ] CLI `vforge next` without OpenCode running
 - [ ] Vue template (`/vforge vue`)
 - [ ] Svelte template (`/vforge svelte`)
