@@ -7,7 +7,7 @@ import path from "node:path";
 
 console.error("[vforge] plugin module loaded");
 
-const COMMAND_ID = "vforge-next";
+const COMMAND_ID = "vforge";
 
 const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
   console.error("[vforge] plugin init, directory:", directory);
@@ -26,7 +26,8 @@ const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
     // It seeds the project directory before the LLM sees the message.
     "command.execute.before": async (input) => {
       if (input.command !== COMMAND_ID) return;
-      const prompt = ((input as Record<string, unknown>).arguments as string | undefined || "").trim();
+      const args = ((input as Record<string, unknown>).arguments as string | undefined || "").trim();
+      const prompt = args.replace(/^next\s+/i, "").trim();
       const sessionID = ((input as Record<string, unknown>).sessionID as string | undefined) || "";
 
       console.error("[vforge] command.execute.before fired, prompt:", prompt);

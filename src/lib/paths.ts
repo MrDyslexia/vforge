@@ -1,5 +1,6 @@
 import path from "node:path";
 import os from "node:os";
+import { fileURLToPath } from "node:url";
 
 export const DEFAULT_APPS_DIR = path.join(os.homedir(), "vforge-apps");
 
@@ -12,5 +13,5 @@ export function resolveOutputPath(slug: string, customPath?: string): string {
 }
 
 export function pluginTemplatePath(): string {
-  return new URL("../templates/next-shadcn-base", import.meta.url).pathname;
+  return fileURLToPath(new URL("../templates/next-shadcn-base", import.meta.url));
 }

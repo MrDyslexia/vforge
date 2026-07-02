@@ -73,6 +73,7 @@ function removePlugin(config: OpencodeConfig): OpencodeConfig {
 
 async function backupConfig(raw: string): Promise<void> {
   const backupPath = `${CONFIG_PATH}.vforge-bak-${Date.now()}`;
+  await mkdir(CONFIG_DIR, { recursive: true });
   await writeFile(backupPath, raw, "utf-8");
   console.log(`Backup saved to ${backupPath}`);
 }

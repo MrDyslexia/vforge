@@ -1,9 +1,10 @@
 import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { renderProjectMd } from "../lib/project-md.js";
 
 function pluginRoot(): string {
-  return path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
 
 export interface VforgeLock {
