@@ -2,11 +2,21 @@ import { readFile, writeFile, copyFile, mkdir, readdir, rmdir, unlink } from "no
 import { existsSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 
-const CONFIG_PATH = path.join(os.homedir(), ".config", "opencode", "opencode.json");
-const SKILLS_DIR = path.join(os.homedir(), ".config", "opencode", "skills");
+function opencodeConfigDir(): string {
+  if (process.platform === "win32") {
+    const appData = process.env.APPDATA;
+    if (appData) return path.join(appData, "opencode");
+  }
+  return path.join(os.homedir(), ".config", "opencode");
+}
+
+const CONFIG_DIR = opencodeConfigDir();
+const CONFIG_PATH = path.join(CONFIG_DIR, "opencode.json");
+const SKILLS_DIR = path.join(CONFIG_DIR, "skills");
 const PLUGIN_NAME = "vforge";
 
 // Resolve package root from dist/cli.js -> package root
@@ -129,7 +139,7 @@ async function install(): Promise<void> {
     await backupConfig(raw);
     const next = addPlugin(config);
     next.$schema = next.$schema || "https://opencode.ai/config.json";
-    await mkdir(path.dirname(CONFIG_PATH), { recursive: true });
+    await mkdir(CONFIG_DIR, { recursive: true });
     await writeFile(CONFIG_PATH, JSON.stringify(next, null, 2) + "\n", "utf-8");
     console.log(`vforge registered in ${CONFIG_PATH}`);
   }
