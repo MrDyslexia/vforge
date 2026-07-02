@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["vforge"],
+  "agent": {
+    "vforge-builder": {
+      "description": "Builds and evolves local Bun/Next.js apps from vforge specs.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "prompt": "./agents/vforge-builder.md",
+      "permission": {
+        "edit": "allow",
+        "bash": "ask",
+        "external_directory": { "*": "ask", "./**": "allow" }
+      }
+    }
+  },
+  "command": {
+    "iterate": {
+      "template": "/iterate",
+      "description": "Evolve or refactor the generated app from a new prompt.",
+      "agent": "vforge-builder"
+    },
+    "page": {
+      "template": "/page",
+      "description": "Add a new Next.js page to the generated app.",
+      "agent": "vforge-builder"
+    },
+    "component": {
+      "template": "/component",
+      "description": "Add a new component to the generated app.",
+      "agent": "vforge-builder"
+    }
+  }
+}

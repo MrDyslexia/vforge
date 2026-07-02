@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["./plugins/vforge/plugin.js"],
+  "permission": {
+    "edit": "allow",
+    "bash": "allow",
+    "external_directory": {
+      "*": "allow"
+    }
+  }
+}

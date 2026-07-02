@@ -1,0 +1,27 @@
+FROM docker.io/oven/bun:1
+
+# Install basic tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ca-certificates \
+    podman \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install opencode globally in a path accessible to all users
+RUN npm install -g opencode-ai@1.17.13
+
+# Create a world-writable home directory. With --userns=keep-id the container
+# runs as the calling host user, so a fixed user/uid is not needed.
+RUN mkdir -p /sandbox/.config/opencode/plugins/vforge \
+    /sandbox/.local/share/opencode \
+    /project \
+    && chmod -R 777 /sandbox /project
+
+# Copy isolated config that loads vforge from the mounted source
+COPY opencode.json /sandbox/.config/opencode/opencode.json
+
+WORKDIR /project
+ENV HOME=/sandbox
+ENTRYPOINT ["opencode"]
+

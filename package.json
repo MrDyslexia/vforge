@@ -1,0 +1,67 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "name": "vforge",
+  "version": "0.1.0",
+  "description": "OpenCode plugin to generate Next.js apps from a prompt, with a living workspace inside each generated project.",
+  "type": "module",
+  "main": "./dist/plugin.js",
+  "module": "./dist/plugin.js",
+  "types": "./dist/plugin.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/plugin.d.ts",
+      "default": "./dist/plugin.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
+    }
+  },
+  "bin": {
+    "vforge": "./bin/vforge.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc && cp -r src/agents src/generated-config src/skills src/templates dist/",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "nextjs",
+    "shadcn",
+    "bun",
+    "v0",
+    "ai",
+    "generator"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/example/vforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/example/vforge/issues"
+  },
+  "homepage": "https://github.com/example/vforge#readme",
+  "engines": {
+    "node": ">=20.0.0",
+    "bun": ">=1.0.0"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.15.0"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.15.6",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
+  }
+}
