@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const CONFIG_PATH = path.join(os.homedir(), ".config", "opencode", "opencode.json");
 const SKILLS_DIR = path.join(os.homedir(), ".config", "opencode", "skills");
@@ -169,7 +170,6 @@ async function doctor(): Promise<void> {
 
 function commandExists(cmd: string): boolean {
   // Simple PATH check; production code may use `which`.
-  const { execSync } = require("node:child_process");
   try {
     execSync(`${cmd} --version`, { stdio: "ignore" });
     return true;

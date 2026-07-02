@@ -20,6 +20,7 @@ RUN mkdir -p /sandbox/.config/opencode/plugins/vforge \
 
 # Copy isolated config that loads vforge from the mounted source
 COPY opencode.json /sandbox/.config/opencode/opencode.json
+RUN chmod 666 /sandbox/.config/opencode/opencode.json
 
 WORKDIR /project
 ENV HOME=/sandbox

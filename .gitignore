@@ -8,3 +8,5 @@ dist/
 .next/
 coverage/
 *.tgz
+.tmp-install-test/
+test-project/*/
