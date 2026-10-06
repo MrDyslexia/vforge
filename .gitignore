@@ -9,4 +9,4 @@ dist/
 coverage/
 *.tgz
 .tmp-install-test/
-test-project/*/
+test-project/
