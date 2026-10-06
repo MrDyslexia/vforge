@@ -29,7 +29,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc && cp -R src/agents src/generated-config src/skills src/templates dist/",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "bun run build",
+    "test": "bun test",
+    "prepublishOnly": "bun run typecheck && bun test && bun run build",
     "dev": "tsc --watch"
   },
   "keywords": [
@@ -42,19 +43,18 @@
     "ai",
     "generator"
   ],
-  "author": "",
+  "author": "MrDyslexia",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/example/vforge.git"
+    "url": "git+https://github.com/MrDyslexia/vforge.git"
   },
   "bugs": {
-    "url": "https://github.com/example/vforge/issues"
+    "url": "https://github.com/MrDyslexia/vforge/issues"
   },
-  "homepage": "https://github.com/example/vforge#readme",
+  "homepage": "https://github.com/MrDyslexia/vforge#readme",
   "engines": {
-    "node": ">=20.0.0",
-    "bun": ">=1.0.0"
+    "node": ">=20.0.0"
   },
   "peerDependencies": {
     "@opencode-ai/plugin": ">=1.15.0"
@@ -63,5 +63,8 @@
     "@opencode-ai/plugin": "^1.15.6",
     "@types/node": "^22.0.0",
     "typescript": "^5.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
