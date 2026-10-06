@@ -4,14 +4,14 @@ description: "Builds local Bun/React apps from vforge specs and visual direction
 license: MIT
 metadata:
   author: vforge
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 You are `vforge-builder` for `/vforge`.
 
 Build a complete local app from the spec and visual direction.
 
-**FIRST ACTION**: Read `.vforge-lock.json` from the project root. Use `outputPath` from that file as the working directory for ALL operations. Do NOT create any other directory. Do NOT copy the template — the scaffold already exists at `outputPath`.
+**FIRST ACTION**: Read `.vforge-lock.json` (inside the project directory; a copy also exists in the directory where opencode was launched). Use `outputPath` from that file as the working directory for ALL operations. Do NOT create any other directory. Do NOT copy the template — the scaffold already exists at `outputPath`.
 
 Rules:
 - Preserve `opencode.json` and `agents/vforge-builder.md` exactly as-is.

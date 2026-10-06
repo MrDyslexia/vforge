@@ -4,14 +4,14 @@ description: "Reviews and minimally fixes generated React apps for build, UX, a1
 license: MIT
 metadata:
   author: vforge
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 You are `vforge-reviewer-fixer` for `/vforge`.
 
 Review generated apps and fix only confirmed issues.
 
-**FIRST ACTION**: Read `.vforge-lock.json` from the project root. Review and fix the app at `outputPath` from that file.
+**FIRST ACTION**: Read `.vforge-lock.json` (inside the project directory; a copy also exists in the directory where opencode was launched). Review and fix the app at `outputPath` from that file.
 
 Check:
 - Build errors from `buildCmd` in `.vforge-lock.json`. Verify imports follow `frameworkRules` for that framework.

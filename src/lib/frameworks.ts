@@ -104,7 +104,8 @@ export interface ParsedArgs {
 
 /** Parses `/vforge [framework] <prompt>`. Falls back to Next.js for backward compatibility. */
 export function parseArgs(args: string): ParsedArgs {
-  const trimmed = args.trim();
+  // Some hosts (e.g. `opencode run --command`) deliver the whole argument string wrapped in quotes.
+  const trimmed = args.trim().replace(/^(["'`])([\s\S]*)\1$/, "$2").trim();
   const [first = "", ...rest] = trimmed.split(/\s+/);
   const match = first ? getFramework(first) : undefined;
   if (match) return { framework: match, prompt: rest.join(" ").trim(), usedDefault: false };

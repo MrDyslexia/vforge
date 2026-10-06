@@ -1,4 +1,5 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderProjectMd } from "../lib/project-md.js";
@@ -11,6 +12,27 @@ function pluginRoot(): string {
 async function pluginVersion(root: string): Promise<string> {
   const pkg = JSON.parse(await readFile(path.join(root, "..", "package.json"), "utf-8"));
   return pkg.version as string;
+}
+
+export interface RecentScaffold {
+  outputPath: string;
+  framework: string;
+}
+
+/**
+ * Returns the project scaffolded for the same prompt in `cwd` within `windowMs`, if it still exists.
+ * Prevents the slash-command hook and an LLM tool call from scaffolding the same request twice.
+ */
+export async function findRecentScaffold(cwd: string, prompt: string, windowMs = 10 * 60_000): Promise<RecentScaffold | undefined> {
+  try {
+    const lock = JSON.parse(await readFile(path.join(cwd, ".vforge-lock.json"), "utf-8")) as Partial<VforgeLock>;
+    if (!lock.outputPath || lock.prompt !== prompt || !lock.createdAt) return undefined;
+    if (Date.now() - Date.parse(lock.createdAt) > windowMs) return undefined;
+    if (!existsSync(lock.outputPath)) return undefined;
+    return { outputPath: lock.outputPath, framework: lock.framework ?? "next" };
+  } catch {
+    return undefined;
+  }
 }
 
 export interface VforgeLock {
@@ -60,10 +82,12 @@ export async function seedProject(
     frameworkRules: fw.rules,
     buildCmd: fw.buildCmd,
   };
-  await writeFile(path.join(cwd, ".vforge-lock.json"), JSON.stringify(lock, null, 2) + "\n", "utf-8");
+  const lockJson = JSON.stringify(lock, null, 2) + "\n";
+  await writeFile(path.join(cwd, ".vforge-lock.json"), lockJson, "utf-8");
 
-  // 2. Copy template into output directory
+  // 2. Copy template into output directory (plus a lock copy inside the project, which agents can read without leaving it)
   await cp(templatePath, outputPath, { recursive: true, force: true });
+  await writeFile(path.join(outputPath, ".vforge-lock.json"), lockJson, "utf-8");
   await writeFile(path.join(outputPath, ".gitignore"), GITIGNORE, "utf-8");
 
   // 3. Add vforge devDependency

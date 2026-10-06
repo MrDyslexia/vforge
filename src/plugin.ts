@@ -1,6 +1,6 @@
 import { tool } from "@opencode-ai/plugin";
 import type { Plugin, PluginInput, Config } from "@opencode-ai/plugin";
-import { seedProject } from "./commands/create-project.js";
+import { findRecentScaffold, seedProject } from "./commands/create-project.js";
 import { FRAMEWORKS, getFramework, parseArgs, usageText, type FrameworkDef } from "./lib/frameworks.js";
 import { toSlug, uniqueSlug } from "./lib/slug.js";
 import { existsSync } from "node:fs";
@@ -19,6 +19,15 @@ async function scaffold(
   prompt: string,
   cwd: string,
 ): Promise<{ outputPath: string; message: string }> {
+  const existing = await findRecentScaffold(cwd, prompt);
+  if (existing) {
+    log("duplicate scaffold request ignored, existing:", existing.outputPath);
+    return {
+      outputPath: existing.outputPath,
+      message: `A ${existing.framework} project for this exact request already exists at \`${existing.outputPath}\`. Do NOT scaffold again; continue the build workflow in that directory.`,
+    };
+  }
+
   const baseSlug = toSlug(prompt) || "vforge-app";
   const slug = uniqueSlug(baseSlug, (s) => existsSync(path.resolve(cwd, s)));
   const outputPath = path.resolve(cwd, slug);
@@ -36,7 +45,7 @@ async function scaffold(
     `- \`${outputPath}/PROJECT.md\` — fill with spec and visual direction`,
     `- \`${outputPath}/agents/vforge-builder.md\``,
     `- \`${outputPath}/package.json\` — includes \`vforge\` in devDependencies`,
-    `- \`.vforge-lock.json\` in project root — canonical slug, outputPath, framework and frameworkRules`,
+    `- \`${outputPath}/.vforge-lock.json\` (copy at \`${cwd}/.vforge-lock.json\`) — canonical slug, outputPath, framework and frameworkRules`,
     "",
     `Framework: **${fw.id}**. Every skill must follow \`frameworkRules\` from \`.vforge-lock.json\`. Do not mix in conventions from other frameworks.`,
     "",
@@ -61,7 +70,11 @@ const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
     config: async (cfg: Config) => {
       cfg.command ??= {};
       cfg.command[COMMAND_ID] = {
-        template: "/vforge $ARGUMENTS",
+        template: [
+          "The vforge plugin has already scaffolded this project and started the build workflow for: $ARGUMENTS",
+          "Do NOT call vforge_create or vforge_next for this request and do not create another project.",
+          "If a build is already in progress, continue it; otherwise reply with one short sentence.",
+        ].join("\n"),
         description: `Generate a local Bun/React app from a prompt. Usage: /vforge <${frameworkIds.join("|")}> <your app description>`,
       };
     },

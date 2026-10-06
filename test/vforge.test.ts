@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { toSlug, uniqueSlug } from "../src/lib/slug";
 import { renderProjectMd } from "../src/lib/project-md";
 import { FRAMEWORKS, getFramework, parseArgs } from "../src/lib/frameworks";
-import { seedProject } from "../src/commands/create-project";
+import { findRecentScaffold, seedProject } from "../src/commands/create-project";
 
 describe("slug", () => {
   test("normalizes accents and punctuation", () => {
@@ -47,6 +47,13 @@ describe("frameworks", () => {
     expect(r.usedDefault).toBe(true);
     expect(parseArgs("next landing").prompt).toBe("landing");
   });
+  test("parseArgs tolerates wrapping quotes", () => {
+    const r = parseArgs('"tanstack tablero kanban"');
+    expect(r.framework.id).toBe("tanstack");
+    expect(r.prompt).toBe("tablero kanban");
+    expect(parseArgs("'vite hola'").framework.id).toBe("vite");
+    expect(parseArgs("vite \"con comillas\" dentro").prompt).toBe('"con comillas" dentro');
+  });
   test("parseArgs with no prompt", () => {
     expect(parseArgs("vite").prompt).toBe("");
     expect(parseArgs("").prompt).toBe("");
@@ -67,7 +74,7 @@ describe.each(FRAMEWORKS.map((f) => f.id))("seedProject (%s)", (id) => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "vforge-seed-"));
     const out = path.join(dir, "app");
     await seedProject(out, "app", "hello", dir, id);
-    for (const f of ["PROJECT.md", "opencode.json", "agents/vforge-builder.md", ".gitignore", ".opencode/commands/page.md"]) {
+    for (const f of ["PROJECT.md", "opencode.json", "agents/vforge-builder.md", ".gitignore", ".vforge-lock.json", ".opencode/commands/page.md"]) {
       expect(existsSync(path.join(out, f))).toBe(true);
     }
     const lock = JSON.parse(await readFile(path.join(dir, ".vforge-lock.json"), "utf-8"));
@@ -80,6 +87,17 @@ describe.each(FRAMEWORKS.map((f) => f.id))("seedProject (%s)", (id) => {
     expect(page).not.toContain("{{");
     expect(page).toContain(getFramework(id)!.label);
     expect(await readFile(path.join(out, "PROJECT.md"), "utf-8")).toContain(`**Framework:** ${id}`);
+  });
+});
+
+describe("findRecentScaffold", () => {
+  test("detects a duplicate request and ignores others", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "vforge-dup-"));
+    expect(await findRecentScaffold(dir, "p")).toBeUndefined();
+    await seedProject(path.join(dir, "a"), "a", "p", dir, "vite");
+    expect((await findRecentScaffold(dir, "p"))?.framework).toBe("vite");
+    expect(await findRecentScaffold(dir, "other prompt")).toBeUndefined();
+    expect(await findRecentScaffold(dir, "p", -1)).toBeUndefined();
   });
 });
 
