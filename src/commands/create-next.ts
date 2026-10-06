@@ -7,6 +7,11 @@ function pluginRoot(): string {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
 
+async function pluginVersion(root: string): Promise<string> {
+  const pkg = JSON.parse(await readFile(path.join(root, "..", "package.json"), "utf-8"));
+  return pkg.version as string;
+}
+
 export interface VforgeLock {
   slug: string;
   outputPath: string;
@@ -31,7 +36,7 @@ export async function seedProject(outputPath: string, slug: string, prompt: stri
   const packageJson = JSON.parse(await readFile(packageJsonPath, "utf-8"));
   packageJson.name = slug;
   packageJson.devDependencies ??= {};
-  packageJson.devDependencies.vforge = "latest";
+  packageJson.devDependencies.vforge = `^${await pluginVersion(root)}`;
   await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n", "utf-8");
 
   // 4. Copy local opencode config

@@ -4,13 +4,17 @@ import { seedProject } from "./commands/create-next.js";
 import { toSlug, uniqueSlug } from "./lib/slug.js";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import process from "node:process";
 
-console.error("[vforge] plugin module loaded");
+const DEBUG = Boolean(process.env.VFORGE_DEBUG);
+const log = (...args: unknown[]) => {
+  if (DEBUG) console.error("[vforge]", ...args);
+};
 
 const COMMAND_ID = "vforge";
 
 const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
-  console.error("[vforge] plugin init, directory:", directory);
+  log("plugin init, directory:", directory);
 
   return {
     config: async (cfg: Config) => {
@@ -30,7 +34,7 @@ const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
       const prompt = args.replace(/^next\s+/i, "").trim();
       const sessionID = ((input as Record<string, unknown>).sessionID as string | undefined) || "";
 
-      console.error("[vforge] command.execute.before fired, prompt:", prompt);
+      log("command.execute.before fired, prompt:", prompt);
 
       if (!prompt) {
         await client.session.prompt({
@@ -46,9 +50,9 @@ const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
       const slug = uniqueSlug(baseSlug, (s) => existsSync(path.resolve(directory, s)));
       const outputPath = path.resolve(directory, slug);
 
-      console.error("[vforge] seeding project at:", outputPath);
+      log("seeding project at:", outputPath);
       await seedProject(outputPath, slug, prompt, directory);
-      console.error("[vforge] seeding done");
+      log("seeding done");
 
       await client.session.prompt({
         path: { id: sessionID },
@@ -91,7 +95,7 @@ const vforgePlugin: Plugin = async ({ client, directory }: PluginInput) => {
           prompt: tool.schema.string().describe("App description from the user."),
         },
         async execute({ prompt }, { directory: cwd }) {
-          console.error("[vforge] vforge_next tool called, prompt:", prompt);
+          log("vforge_next tool called, prompt:", prompt);
           const baseSlug = toSlug(prompt) || "vforge-app";
           const slug = uniqueSlug(baseSlug, (s) => existsSync(path.resolve(cwd, s)));
           const outputPath = path.resolve(cwd, slug);

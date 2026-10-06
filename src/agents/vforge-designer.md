@@ -1,7 +1,6 @@
 ---
 description: Creates high-quality visual systems for generated Next.js apps.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
 permission:
   edit: deny
   bash: deny

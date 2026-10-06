@@ -1,13 +1,11 @@
 ---
 description: Builds local Bun/Next.js apps from vforge specs and visual direction.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
 permission:
   edit: allow
   bash: ask
   external_directory:
     "*": ask
-    "/var/low/vforge-apps/**": allow
 ---
 
 You are `vforge-builder` for `/vforge next`.

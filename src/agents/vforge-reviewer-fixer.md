@@ -1,13 +1,11 @@
 ---
 description: Reviews and minimally fixes generated Next.js apps for build, UX, a11y, and visual quality.
 mode: subagent
-model: openai/gpt-5.5
 permission:
   edit: allow
   bash: ask
   external_directory:
     "*": ask
-    "/var/low/vforge-apps/**": allow
 ---
 
 You are `vforge-reviewer-fixer` for `/vforge next`.

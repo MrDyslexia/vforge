@@ -1,7 +1,6 @@
 ---
 description: Turns /vforge next app prompts into concise implementation specs.
 mode: subagent
-model: openai/gpt-5.5
 permission:
   edit: deny
   bash: deny

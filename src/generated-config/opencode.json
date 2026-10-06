@@ -5,7 +5,6 @@
     "vforge-builder": {
       "description": "Builds and evolves local Bun/Next.js apps from vforge specs.",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
       "prompt": "./agents/vforge-builder.md",
       "permission": {
         "edit": "allow",
