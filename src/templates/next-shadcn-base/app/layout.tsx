@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "v0 Local App",
-  description: "Generated with v0-local",
+  title: "vforge App",
+  description: "Generated with vforge",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

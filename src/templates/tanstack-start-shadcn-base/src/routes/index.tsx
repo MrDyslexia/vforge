@@ -18,7 +18,7 @@ function Home() {
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col justify-center gap-10">
         <div className="inline-flex w-fit items-center gap-2 rounded-full border bg-background/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
-          v0-local template ready
+          vforge template ready
         </div>
 
         <div className="max-w-3xl space-y-6">
@@ -44,7 +44,7 @@ function Home() {
                 <CardTitle className="text-base">{feature}</CardTitle>
                 <CardDescription>Stable baseline for local AI-generated apps.</CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">The `/v0-local` workflow should replace this content with app-specific UI.</CardContent>
+              <CardContent className="text-sm text-muted-foreground">The `/vforge` workflow should replace this content with app-specific UI.</CardContent>
             </Card>
           ))}
         </div>
