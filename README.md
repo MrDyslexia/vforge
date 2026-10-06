@@ -1,6 +1,6 @@
 # vforge
 
-`vforge` is an [OpenCode](https://opencode.ai) plugin that generates local, deployable **Next.js** apps from a single prompt, using your own configured AI model providers.
+`vforge` is an [OpenCode](https://opencode.ai) plugin that generates local, deployable **React** apps (Next.js, Vite, React Router v7, TanStack Start) from a single prompt, using your own configured AI model providers.
 
 Every generated project keeps a living workspace inside it, so you can keep iterating with opencode commands like `/iterate`, `/page`, and `/component`.
 
@@ -8,12 +8,13 @@ Every generated project keeps a living workspace inside it, so you can keep iter
 
 ## Features
 
-- **Prompt-to-app**: `/vforge next "landing page premium para analytics SaaS"`
+- **Prompt-to-app**: `/vforge vite "landing page premium para analytics SaaS"`
+- **Multiple React frameworks**: Next.js, Vite + React, React Router v7, TanStack Start.
 - **Your own AI providers**: uses OpenCode's configured models via dedicated agents.
 - **Bun + Next.js + Tailwind + shadcn**: fast, modern stack.
 - **Living workspace**: each generated project includes `vforge` as a devDependency and an `opencode.json` workspace.
 - **Build + repair loop**: builds are validated and repaired automatically.
-- **Multi-template ready**: currently Next.js; Vue, Svelte and others are planned.
+- **Multi-template ready**: each framework is a descriptor plus a template; Vue, Svelte and others can follow.
 
 ---
 
@@ -57,8 +58,21 @@ Set `VFORGE_DEBUG=1` before starting OpenCode to print plugin logs to stderr.
 ### Inside OpenCode
 
 ```text
+/vforge <framework> <app description>
 /vforge next landing page premium para analytics SaaS
+/vforge vite dashboard de finanzas personales
+/vforge react-router blog con posts mockeados
+/vforge tanstack tablero kanban
 ```
+
+| Framework | Id (aliases) | Rendering | Build check |
+|---|---|---|---|
+| Next.js (App Router) | `next` | SSR/SSG | `bun run build` |
+| Vite + React | `vite` | SPA | `tsc` + `vite build` |
+| React Router v7 (framework mode) | `react-router` (`rr`) | SSR | `typegen` + `tsc` + `react-router build` |
+| TanStack Start | `tanstack` (`tanstack-start`) | SSR | `vite build` + `tsc` |
+
+If you omit the framework, `next` is used (backward compatible with 0.1.x).
 
 The plugin scaffolds the project deterministically, then runs four skills in order:
 
@@ -66,6 +80,8 @@ The plugin scaffolds the project deterministically, then runs four skills in ord
 2. `vforge-designer` — creates a visual direction.
 3. `vforge-builder` — builds the app inside the scaffold and runs `bun install && bun run build`.
 4. `vforge-reviewer-fixer` — validates the build and fixes issues.
+
+Each framework ships its own rules (routing, folders, import alias) that the skills read from `.vforge-lock.json`, so the planner, builder and reviewer never mix conventions.
 
 The generated project is placed in `./<slug>/` (relative to the directory where you run OpenCode).
 
@@ -75,12 +91,12 @@ The generated project is placed in `./<slug>/` (relative to the directory where 
 
 ```text
 my-app/
-├── app/                    # Next.js App Router
-├── components/             # Components
-├── lib/                    # Utilities
+├── app/ or src/            # Routes and source (depends on the framework)
+├── components.json         # shadcn config
 ├── package.json            # Includes vforge as devDependency
 ├── PROJECT.md              # Prompt, spec, visual direction, status
 ├── opencode.json           # Local workspace config
+├── .opencode/commands/     # /iterate, /page, /component (framework-aware)
 └── agents/
     └── vforge-builder.md   # Local builder agent prompt
 ```
@@ -96,7 +112,7 @@ Open the generated project with OpenCode. These commands are available:
 | `/iterate <prompt>` | Evolve or refactor the app. |
 | `/page <name>` | Add a new page. |
 | `/component <name>` | Add a new component. |
-| `/vforge next` | Generate another project. |
+| `/vforge <framework> <prompt>` | Generate another project. |
 
 ---
 
@@ -110,10 +126,11 @@ vforge/
 │   ├── plugin.ts           # OpenCode plugin entry point
 │   ├── cli.ts              # CLI install/uninstall/doctor
 │   ├── commands/
-│   │   └── create-next.ts  # /vforge next handler
+│   │   └── create-project.ts  # scaffolds a project for a given framework
 │   ├── agents/             # Subagent prompt files
 │   ├── skills/             # vforge-* skills installed by the CLI
-│   ├── templates/          # Next.js template
+│   ├── templates/          # One template per framework
+│   ├── lib/frameworks.ts   # Framework registry (ids, rules, templates)
 │   ├── lib/                # Helpers (slug, PROJECT.md)
 │   └── generated-config/   # Files copied into each generated project
 └── dist/                   # Compiled output
@@ -122,8 +139,8 @@ vforge/
 ### Plugin lifecycle
 
 1. OpenCode loads `vforge` from the global `plugin` array.
-2. `src/plugin.ts` registers the `/vforge` command and the `vforge_next` tool.
-3. On `/vforge next`, the `command.execute.before` hook calls `seedProject` (`create-next.ts`) to copy the template, local config and `PROJECT.md`.
+2. `src/plugin.ts` registers the `/vforge` command and the `vforge_create` tool (`vforge_next` kept as alias).
+3. On `/vforge <framework> <prompt>`, the `command.execute.before` hook calls `seedProject` (`create-next.ts`) to copy the template, local config and `PROJECT.md`.
 4. The LLM then runs the four skills; the builder installs dependencies and runs the build.
 5. The reviewer fixes any build issues.
 6. The project is finalized with `PROJECT.md`, local `opencode.json`, and iteration commands.
@@ -137,7 +154,8 @@ git clone https://github.com/MrDyslexia/vforge.git
 cd vforge
 bun install
 bun run build
-bun test
+bun test                    # unit tests
+VFORGE_E2E=1 bun test       # also installs and builds every template (slow, needs network)
 ```
 
 Run tests, then the install test in a clean Linux container (requires Podman):
@@ -171,6 +189,7 @@ Generated projects list `vforge` as a devDependency. Make sure you have network 
 - [x] Windows compatibility
 - [x] Publish to npm
 - [ ] CLI `vforge next` without OpenCode running
+- [x] Vite, React Router v7 and TanStack Start templates
 - [ ] Vue template (`/vforge vue`)
 - [ ] Svelte template (`/vforge svelte`)
 - [ ] Configurable output directory
