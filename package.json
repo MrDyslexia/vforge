@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "name": "vforge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "OpenCode plugin to generate React apps (Next.js, Vite, React Router, TanStack Start) from a prompt, with a living workspace inside each generated project.",
   "type": "module",
   "main": "./dist/plugin.js",
