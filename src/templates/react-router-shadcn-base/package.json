@@ -1,0 +1,35 @@
+{
+  "name": "vforge-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.2.0",
+  "scripts": {
+    "dev": "react-router dev --host 0.0.0.0",
+    "build": "react-router typegen && tsc --noEmit && react-router build",
+    "start": "react-router-serve ./build/server/index.js"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwind-merge": "latest",
+    "@react-router/node": "latest",
+    "@react-router/serve": "latest",
+    "isbot": "latest",
+    "react-router": "latest"
+  },
+  "devDependencies": {
+    "@react-router/dev": "latest",
+    "@tailwindcss/vite": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}
